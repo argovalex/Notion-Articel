@@ -8,6 +8,15 @@ const FB_ACCESS_TOKEN = process.env.FB_ACCESS_TOKEN;
 
 // ─── Notion: שליפת פוסטים מאושרים שהגיע זמנם ───────────────────────────────
 async function getApprovedArticles() {
+  // DEBUG: הדפס את כל שמות העמודות ב-DB
+  try {
+    const dbInfo = await notion.databases.retrieve({ database_id: DB_ID });
+    const propNames = Object.keys(dbInfo.properties);
+    console.log('📋 DB Properties found:', propNames.join(', '));
+  } catch (e) {
+    console.error('❌ Could not retrieve DB info:', e.message);
+  }
+
   const now = new Date().toISOString();
 
   const res = await notion.databases.query({
@@ -20,12 +29,10 @@ async function getApprovedArticles() {
         },
         {
           or: [
-            // פוסט ללא תאריך מתוזמן → מיידי
             {
               property: 'Scheduled_At',
               date: { is_empty: true }
             },
-            // פוסט עם תאריך שכבר הגיע
             {
               property: 'Scheduled_At',
               date: { on_or_before: now }
@@ -108,13 +115,9 @@ async function publishApproved() {
         }
       }
 
-      // פלטפורמות עתידיות — להוסיף כאן
-      // if (platform === 'LinkedIn' || platform === 'Both') { ... }
-
       await markAsPublished(article.id);
       console.log(`   ✅ Marked as Published in Notion`);
 
-      // המתנה בין פוסטים כדי לא להכביד על ה-API
       await new Promise(r => setTimeout(r, 2000));
 
     } catch (err) {
