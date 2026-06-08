@@ -12,6 +12,7 @@
     "@anthropic-ai/sdk": "^0.24.0",
     "@notionhq/client": "^2.2.15",
     "axios": "^1.6.0",
+    "caveman": "^0.1.6",
     "node-cron": "^3.0.3",
     "xml2js": "^0.6.2"
   }
